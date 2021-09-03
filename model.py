@@ -19,6 +19,17 @@ class Model(pl.LightningModule):
         super(Model, self).__init__()
         self.save_hyperparameters(args, ignore='cache_emb')
         self.perceiver = clip.load(self.hparams.clip_model, jit=False)[0]
+        
+        CHECKPOINT='ckpt.pt'
+            
+        checkpoint = torch.load(CHECKPOINT)
+
+        checkpoint['state_dict']["input_resolution"] = self.perceiver.input_resolution #default is 224
+        checkpoint['state_dict']["context_length"] = self.perceiver.context_length # default is 77
+        checkpoint['state_dict']["vocab_size"] = self.perceiver.vocab_size 
+
+        self.perceiver.load_state_dict(checkpoint['state_dict'])
+
         self.tokenizer = AutoTokenizer.from_pretrained(
             'facebook/bart-large', cache_dir=self.hparams.datadir)
         self.model = AutoModelForSeq2SeqLM.from_pretrained(
