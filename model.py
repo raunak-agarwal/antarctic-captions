@@ -1,3 +1,5 @@
+import os 
+
 import torch
 import pytorch_lightning as pl
 
@@ -21,14 +23,16 @@ class Model(pl.LightningModule):
         self.perceiver = clip.load(self.hparams.clip_model, jit=False)[0]
         
         CHECKPOINT='ckpt.pt'
+        
+        if os.path.isfile(CHECKPOINT):
             
-        checkpoint = torch.load(CHECKPOINT)
+            checkpoint = torch.load(CHECKPOINT)
 
-        checkpoint['state_dict']["input_resolution"] = self.perceiver.input_resolution #default is 224
-        checkpoint['state_dict']["context_length"] = self.perceiver.context_length # default is 77
-        checkpoint['state_dict']["vocab_size"] = self.perceiver.vocab_size 
+            checkpoint['state_dict']["input_resolution"] = self.perceiver.input_resolution #default is 224
+            checkpoint['state_dict']["context_length"] = self.perceiver.context_length # default is 77
+            checkpoint['state_dict']["vocab_size"] = self.perceiver.vocab_size 
 
-        self.perceiver.load_state_dict(checkpoint['state_dict'])
+            self.perceiver.load_state_dict(checkpoint['state_dict'])
 
         self.tokenizer = AutoTokenizer.from_pretrained(
             'facebook/bart-large', cache_dir=self.hparams.datadir)
