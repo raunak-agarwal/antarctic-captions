@@ -40,7 +40,10 @@ def build_table(x,
                 row += r + ' | '
             table.append(row)
     else:
-        similarity = (100.0 * x @ cache_emb.T).softmax(dim=-1)
+        #print(x.shape)
+        #print(cache_emb.shape)
+        ipt = 100.0 * x.float() @ cache_emb.T.float()
+        similarity = (ipt).softmax(dim=-1)
         for idx in range(len(x)):
             row = ''
             values, indices = similarity[idx].topk(topk)
